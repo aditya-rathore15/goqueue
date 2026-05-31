@@ -2,7 +2,10 @@ package main
 
 import (
 	"log"
+	"strconv"
+
 	"github.com/aditya-rathore15/goqueue/internal/queue"
+	"github.com/aditya-rathore15/goqueue/internal/worker"
 )
 
 func main() {
@@ -10,23 +13,18 @@ func main() {
 
 	q := queue.NewQueue()
 
-	q.Enqueue(queue.Task{
-		ID: "1",
-		Payload: "Task 1",
-		Status: queue.StatusPending,
-	})
-
-	q.Enqueue(queue.Task{
-		ID: "2",
-		Payload: "Task 2",
-		Status: queue.StatusPending,
-	})
-
-	task, ok := q.Dequeue()
-
-	if ok {
-		log.Println("Dequeued task: ", task)
-	} else {
-		log.Println("Queue is empty")
+	for i := 1; i <= 3; i++ {
+		w := worker.NewWorker(i, q)
+		go w.Start()
 	}
+
+	for i := 1; i <= 5; i++ {
+		q.Enqueue(queue.Task{
+			ID:      strconv.Itoa(i),
+			Payload: "Task Payload " + strconv.Itoa(i),
+			Status:  queue.StatusPending,
+		})
+	}
+
+	select {}
 }
