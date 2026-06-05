@@ -2,7 +2,9 @@ package persistence
 
 import (
 	"encoding/json"
+
 	"go.etcd.io/bbolt"
+
 	"github.com/aditya-rathore15/goqueue/internal/queue"
 )
 
@@ -13,17 +15,13 @@ type Store struct {
 }
 
 func NewStore(path string) (*Store, error) {
-
 	db, err := bbolt.Open(path, 0600, nil)
-
 	if err != nil {
 		return nil, err
 	}
 
 	err = db.Update(func(tx *bbolt.Tx) error {
-
 		_, err := tx.CreateBucketIfNotExists(taskBucket)
-
 		return err
 	})
 
@@ -72,4 +70,11 @@ func (s *Store) LoadAll() ([]queue.Task, error) {
 	}
 
 	return tasks, nil
+}
+
+func (s *Store) Delete(taskID string) error {
+	return s.db.Update(func(tx *bbolt.Tx) error {
+		b := tx.Bucket(taskBucket)
+		return b.Delete([]byte(taskID))
+	})
 }
