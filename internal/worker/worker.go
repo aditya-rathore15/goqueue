@@ -25,6 +25,7 @@ func (w *Worker) Start() {
 
 		if ok {
 			log.Printf("Worker %d processing task: %s\n", w.id, task.ID)
+			time.Sleep(3 * time.Second)
 		} else {
 			time.Sleep(1 * time.Second)
 		}

@@ -5,11 +5,13 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/aditya-rathore15/goqueue/internal/persistence"
 	"github.com/aditya-rathore15/goqueue/internal/queue"
 )
 
 type Server struct {
 	queue *queue.Queue
+	store *persistence.Store
 }
 
 type taskRequest struct {
@@ -17,9 +19,10 @@ type taskRequest struct {
 	Payload string `json:"payload"`
 }
 
-func NewServer(q *queue.Queue) *Server {
+func NewServer(q *queue.Queue, store *persistence.Store) *Server {
 	return &Server{
 		queue: q,
+		store: store,
 	}
 }
 
@@ -34,7 +37,6 @@ func (s *Server) Start(port string) {
 		var req taskRequest
 
 		err := json.NewDecoder(r.Body).Decode(&req)
-
 		if err != nil {
 			w.WriteHeader(http.StatusBadRequest)
 			return
@@ -44,6 +46,12 @@ func (s *Server) Start(port string) {
 			ID:      req.ID,
 			Payload: req.Payload,
 			Status:  queue.StatusPending,
+		}
+
+		err = s.store.Save(task)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		s.queue.Enqueue(task)
@@ -56,7 +64,6 @@ func (s *Server) Start(port string) {
 	log.Printf("Broker server running on port %s\n", port)
 
 	err := http.ListenAndServe(":"+port, nil)
-
 	if err != nil {
 		log.Fatal(err)
 	}
