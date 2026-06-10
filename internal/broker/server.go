@@ -43,9 +43,11 @@ func (s *Server) Start(port string) {
 		}
 
 		task := queue.Task{
-			ID:      req.ID,
-			Payload: req.Payload,
-			Status:  queue.StatusPending,
+			ID:         req.ID,
+			Payload:    req.Payload,
+			Status:     queue.StatusPending,
+			Retries:    0,
+			MaxRetries: 3,
 		}
 
 		err = s.store.Save(task)

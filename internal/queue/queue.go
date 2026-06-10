@@ -11,9 +11,11 @@ const (
 )
 
 type Task struct {
-	ID      string
-	Payload string
-	Status  Status
+	ID         string
+	Payload    string
+	Status     Status
+	Retries    int
+	MaxRetries int
 }
 
 type Queue struct {
