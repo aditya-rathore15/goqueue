@@ -29,7 +29,7 @@ func main() {
 	}
 
 	for i := 1; i <= 3; i++ {
-		w := worker.NewWorker(i, q)
+		w := worker.NewWorker(i, q, store)
 		go w.Start()
 	}
 
